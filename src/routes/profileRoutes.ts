@@ -9,16 +9,9 @@ const router = Router();
 router.get('/', profileController.getAdminProfile);
 
 // Admin protected route
-const adminAuth = (req: any, res: any, next: any) => {
-  if (process.env.NODE_ENV === 'development') return next();
-  authenticateRequest(req, res, next);
-};
+const isDev = process.env.NODE_ENV === 'development';
+const auth = isDev ? (_req: any, _res: any, next: any) => next() : [authenticateRequest, isAdmin];
 
-const adminCheck = (req: any, res: any, next: any) => {
-  if (process.env.NODE_ENV === 'development') return next();
-  isAdmin(req, res, next);
-};
-
-router.patch('/admin', adminAuth, adminCheck, upload.single('avatar'), profileController.updateProfile);
+router.patch('/admin', auth, upload.single('avatar'), profileController.updateProfile);
 
 export default router;
